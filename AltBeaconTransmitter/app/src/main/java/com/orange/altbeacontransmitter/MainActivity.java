@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseSettings;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -19,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
     private UUID uuid;
     private TextView textView;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +30,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createUUID(){
-        uuid = UUID.randomUUID();
-        textView = findViewById(R.id.textView);
-        textView.setText(uuid.toString());
-        createBeacon(uuid);
+        sharedPreferences = getSharedPreferences("share",MODE_PRIVATE);
+        if(sharedPreferences.getString("uuid",null) == null) {
+            uuid = UUID.randomUUID();
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("uuid", uuid.toString());
+            editor.apply();
+            textView = findViewById(R.id.textView);
+            textView.setText(uuid.toString());
+            createBeacon(uuid);
+        } else {
+            String s = sharedPreferences.getString("uuid",null);
+            textView = findViewById(R.id.textView);
+            textView.setText(s);
+        }
     }
 
     private void createBeacon(UUID uuid) {
